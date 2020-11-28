@@ -48,11 +48,7 @@ func decodeBinaryType4(value interface{}) interface{} {
 		return value
 	}
 
-	mapValue, ok := m["base64"]
-	if !ok {
-		return value
-	}
-
+	mapValue := m["base64"]
 	base64Value, ok := mapValue.(string)
 	if !ok {
 		return value
@@ -63,12 +59,20 @@ func decodeBinaryType4(value interface{}) interface{} {
 		return value
 	}
 
-	uuidValue, err := uuid.FromBytes(binaryValue)
-	if err != nil {
+	subTypeValue := m["subType"]
+	stringSubType, ok := subTypeValue.(string)
+	if !ok {
 		return value
 	}
 
-	return uuidValue.String()
+	if stringSubType == "04" {
+		if uuidValue, err := uuid.FromBytes(binaryValue); err == nil {
+			return uuidValue.String()
+		}
+	}
+
+	return value
+
 }
 
 func convertValue(value interface{}, unwrapNumbers bool) interface{} {
