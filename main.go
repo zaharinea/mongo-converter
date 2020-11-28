@@ -42,7 +42,7 @@ func unwrapNumber(key string, value interface{}) interface{} {
 	return value
 }
 
-func decodeBinaryType4(value interface{}) interface{} {
+func decodeBinary(value interface{}) interface{} {
 	m, ok := value.(map[string]interface{})
 	if !ok {
 		return value
@@ -79,7 +79,7 @@ func convertValue(value interface{}, unwrapNumbers bool) interface{} {
 	if m, ok := value.(map[string]interface{}); ok {
 		for mapKey, mapVal := range m {
 			if mapKey == "$binary" {
-				return decodeBinaryType4(mapVal)
+				return decodeBinary(mapVal)
 			}
 
 			if _, exist := WRAPPED_KEYS[mapKey]; exist {
