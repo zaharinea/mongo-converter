@@ -1,0 +1,21 @@
+name: Pull requests
+
+on:
+  pull_request:
+    branches:
+    - "**"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+    - name: Set up Go 1.x
+      uses: actions/setup-go@v2
+
+    - name: Checkout the repository
+      uses: actions/checkout@v2
+
+    - name: Run tests
+      run: go test ./...
