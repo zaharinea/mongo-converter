@@ -2,12 +2,15 @@ package main
 
 import (
 	"bufio"
+	"encoding/base64"
 	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
 	"os"
 	"strconv"
+
+	"github.com/google/uuid"
 )
 
 var WRAPPED_KEYS = map[string]bool{
@@ -39,9 +42,46 @@ func unwrapNumber(key string, value interface{}) interface{} {
 	return value
 }
 
+func decodeBinary(value interface{}) interface{} {
+	m, ok := value.(map[string]interface{})
+	if !ok {
+		return value
+	}
+
+	mapValue := m["base64"]
+	base64Value, ok := mapValue.(string)
+	if !ok {
+		return value
+	}
+
+	binaryValue, err := base64.StdEncoding.DecodeString(base64Value)
+	if err != nil {
+		return value
+	}
+
+	subTypeValue := m["subType"]
+	stringSubType, ok := subTypeValue.(string)
+	if !ok {
+		return value
+	}
+
+	if stringSubType == "04" {
+		if uuidValue, err := uuid.FromBytes(binaryValue); err == nil {
+			return uuidValue.String()
+		}
+	}
+
+	return value
+
+}
+
 func convertValue(value interface{}, unwrapNumbers bool) interface{} {
 	if m, ok := value.(map[string]interface{}); ok {
 		for mapKey, mapVal := range m {
+			if mapKey == "$binary" {
+				return decodeBinary(mapVal)
+			}
+
 			if _, exist := WRAPPED_KEYS[mapKey]; exist {
 				if unwrapNumbers {
 					return unwrapNumber(mapKey, mapVal)
