@@ -17,9 +17,10 @@ to:
 
 ## example usage:
 ```
+mongoexport "mongodb://localhost:27017" -d database -c collection --type=json -o mongo_dump.json
 ./mongo-converter -in=mongo_dump.json -unwrap-numbers=0 > mongo_dump.converted.json
 ```
 or
 ```
-cat mongo_dump.json | ./mongo-converter -unwrap-numbers=0 > mongo_dump.converted.json
+mongoexport "mongodb://localhost:27017" -d database -c collection --type=json | ./mongo-converter -unwrap-numbers=0 > mongo_dump.converted.json
 ```
