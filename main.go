@@ -13,7 +13,7 @@ import (
 	"github.com/google/uuid"
 )
 
-var WRAPPED_KEYS = map[string]bool{
+var wrappedKeys = map[string]bool{
 	"$oid":           true,
 	"$date":          true,
 	"$numberDouble":  true,
@@ -82,7 +82,7 @@ func convertValue(value interface{}, unwrapNumbers bool) interface{} {
 				return decodeBinary(mapVal)
 			}
 
-			if _, exist := WRAPPED_KEYS[mapKey]; exist {
+			if _, exist := wrappedKeys[mapKey]; exist {
 				if unwrapNumbers {
 					return unwrapNumber(mapKey, mapVal)
 				}
@@ -95,7 +95,7 @@ func convertValue(value interface{}, unwrapNumbers bool) interface{} {
 	}
 
 	if s, ok := value.([]interface{}); ok {
-		return convertSlise(s, unwrapNumbers)
+		return convertSlice(s, unwrapNumbers)
 	}
 
 	return value
@@ -109,7 +109,7 @@ func convertMap(m map[string]interface{}, unwrapNumbers bool) map[string]interfa
 	return m
 }
 
-func convertSlise(s []interface{}, unwrapNumbers bool) []interface{} {
+func convertSlice(s []interface{}, unwrapNumbers bool) []interface{} {
 	for idx, val := range s {
 		s[idx] = convertValue(val, unwrapNumbers)
 	}
@@ -118,13 +118,12 @@ func convertSlise(s []interface{}, unwrapNumbers bool) []interface{} {
 
 func convert(s []byte, unwrapNumbers bool) []byte {
 	var jsonMap map[string]interface{}
-
 	if err := json.Unmarshal(s, &jsonMap); err != nil {
 		return s
 	}
-	newJsonMap := convertMap(jsonMap, unwrapNumbers)
 
-	result, err := json.Marshal(newJsonMap)
+	updatedJSONMap := convertMap(jsonMap, unwrapNumbers)
+	result, err := json.Marshal(updatedJSONMap)
 	if err != nil {
 		return s
 	}
